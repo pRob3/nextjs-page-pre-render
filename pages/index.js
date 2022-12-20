@@ -13,14 +13,27 @@ function HomePage(props) {
   );
 }
 
-export async function getStaticProps() {
-  const fs = require('fs').promises;
-
+export async function getStaticProps(context) {
   console.log('(Re-)Generating...');
 
+  const fs = require('fs').promises;
   const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
   const jsonData = await fs.readFile(filePath);
   const data = JSON.parse(jsonData);
+
+  if (!data) {
+    return {
+      redirect: {
+        destination: '/no-data', // path to redirect to
+      },
+    };
+  }
+
+  if (data.products.length === 0) {
+    return {
+      notFound: true, // 404 page
+    };
+  }
 
   return {
     props: {
